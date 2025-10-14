@@ -1,0 +1,450 @@
+@import url('https://fonts.googleapis.com/css2?family=Sometype+Mono:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+    background: #fff;
+    font-family: 'Sometype Mono', monospace;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Left Column */
+.left-column {
+    width: 35%;
+    background: white;
+    padding: 30px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.title-section {
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.title-section h1 {
+    font-size: 28px;
+    font-weight: 300;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.description {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #666;
+}
+
+.top-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    min-height: 0;
+}
+
+.bottom-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    min-height: 0;
+}
+
+.poem-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.patterns-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Panel headers */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #000;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.panel-header h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+    margin: 0;
+}
+
+.toggle-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.toggle-btn:hover {
+    opacity: 0.8;
+}
+
+.poem-area {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.poem-area.collapsed {
+    flex: 0;
+    min-height: 0;
+    max-height: 0;
+}
+
+.patterns-area {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.patterns-area.collapsed {
+    flex: 0;
+    min-height: 0;
+    max-height: 0;
+}
+
+#poem-display {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: transparent;
+    border: 2px solid #000;
+    border-radius: 0 0 6px 6px;
+    border-top: none;
+    min-height: 0;
+}
+
+#patterns-gallery {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: transparent;
+    border-radius: 0 0 6px 6px;
+    border: 2px solid #000;
+    border-top: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    align-content: start;
+    min-height: 0;
+}
+
+.stanza-block {
+    margin-bottom: 15px;
+    padding: 5px 5px;
+    line-height: 16px;
+    background: #000;
+    border-radius: 4px;
+    border: 2px solid #000;
+}
+
+.stanza-text {
+    font-size: 12px;
+    line-height: 16px;
+    color: #000;
+    margin-bottom: 15px;
+}
+
+.pattern-img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+#export-section {
+    padding: 15px;
+    background: transparent;
+    border-radius: 6px;
+    border: 2px solid #000;
+}
+
+#export-section h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #000;
+    font-family: 'Sometype Mono', monospace;
+}
+
+.btn-primary {
+    background: #000000;
+    color: white;
+    border: 2px solid #000;
+}
+
+.btn-primary:hover {
+    background: #ffffff;
+}
+
+.btn-secondary {
+    background: #000000;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #000000;
+}
+
+.btn-success {
+    background: #000000;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #ffffff;
+}
+
+.btn-danger {
+    background: #000000;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #ffffff;
+}
+
+.btn-info {
+    background: #000000;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #000000;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.output-card {
+    margin-top: 30px;
+    padding: 20px;
+    background: transparent;
+    border-radius: 8px;
+    border: 2px solid #000;
+}
+
+.output-card h2 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#final-poem {
+    margin-bottom: 20px;
+}
+
+#trajectory-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.trajectory-mini {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    border: 2px solid #000;
+}
+
+#meta-info {
+    font-size: 12px;
+    color: #000;
+    padding: 10px;
+    background: transparent;
+    border: 2px solid #000;
+    border-radius: 4px;
+}
+
+/* Right Column */
+.right-column {
+    width: 65%;
+    background: white;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+}
+
+.control-panel {
+    background: #000;
+    padding: 20px;
+    border-radius: 6px;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex-shrink: 0;
+    margin-bottom: 20px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-group label {
+    font-size: 12px;
+    color: #fff;
+    white-space: nowrap;
+    font-family: 'Sometype Mono', monospace;
+}
+
+.control-group input[type="range"] {
+    width: 100px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+/* Range track */
+.control-group input[type="range"]::-webkit-slider-track {
+    background: #fff;
+    height: 2px;
+    border-radius: 0;
+}
+
+.control-group input[type="range"]::-moz-range-track {
+    background: #fff;
+    height: 2px;
+    border-radius: 0;
+}
+
+/* Range thumb */
+.control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.control-group input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.control-group select {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 2px solid #fff;
+    background: #000;
+    color: #fff;
+    font-size: 12px;
+    font-family: 'Sometype Mono', monospace;
+}
+
+.control-group select option {
+    background: #000;
+    color: #fff;
+}
+
+.control-group input[type="checkbox"] {
+    cursor: pointer;
+}
+
+#canvas-container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid #000;
+    border-radius: 6px;
+    background: #fff;
+}
+
+/* Current stanza text display */
+.current-stanza-text {
+    font-size: 12px;
+    line-height: 16px;
+    color: #000000;
+    padding: 10px 0;
+    background: transparent;
+    margin-bottom: 10px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #000;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #000;
+}

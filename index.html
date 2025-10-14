@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poem Lock Pattern</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rita/2.8.1/rita.min.js"></script>
+    
+</head>
+<body>
+    <div class="container">
+        <!-- Left Column -->
+        <div class="left-column">
+            <div class="title-section">
+                <h1>Reconstructed Cities</h1>
+                <p class="description"></p>
+            </div>
+
+            <div class="top-panel">
+                <div class="panel-header" id="text-panel-header">
+                    <h2>Text</h2>
+                    <button class="toggle-btn" id="text-toggle">−</button>
+                </div>
+                <div class="poem-area" id="text-panel-content">
+                    <div id="poem-display"></div>
+                </div>
+            </div>
+
+            <div class="bottom-panel">
+                <div class="panel-header" id="pattern-panel-header">
+                    <h2>Pattern</h2>
+                    <button class="toggle-btn" id="pattern-toggle">−</button>
+                </div>
+                <div class="patterns-area" id="pattern-panel-content">
+                    <div id="patterns-gallery"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="save-stanza" class="btn btn-primary">Save Line</button>
+                <button id="finish-poem" class="btn btn-success">Finish & Export</button>
+                <button id="reset" class="btn btn-danger">Reset All</button>
+            </div>
+
+            <div id="export-section" style="display:none; margin-top:20px;">
+                <h3 style="font-size:16px; margin-bottom:10px;">Export Options</h3>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button id="export-poem" class="btn btn-info">Download Text</button>
+                    <button id="export-patterns" class="btn btn-info">Download Patterns (Images)</button>
+                    <button id="export-all" class="btn btn-info">Download Both</button>
+                </div>
+            </div>
+
+            <div id="output-card" class="output-card" style="display:none;">
+                <h2>Your Poem</h2>
+                <div id="final-poem"></div>
+                <div id="trajectory-gallery"></div>
+                <div id="meta-info"></div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <div class="control-panel">
+                <div class="control-group">
+                    <label>Rows: <span id="rows-value">4</span></label>
+                    <input type="range" id="rows-slider" min="3" max="20" value="4">
+                </div>
+                <div class="control-group">
+                    <label>Columns: <span id="cols-value">6</span></label>
+                    <input type="range" id="cols-slider" min="4" max="20" value="6">
+                </div>
+                <div class="control-group">
+                    <label>Coded Level: <span id="morse-value">0</span>%</label>
+                    <input type="range" id="morse-slider" min="0" max="100" value="0">
+                </div>
+            </div>
+
+            <div id="canvas-container"></div>
+        </div>
+    </div>
+
+    <script src="fragments.js"></script>
+    <script src="sketch.js"></script>
+</body>
+</html>
