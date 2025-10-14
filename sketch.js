@@ -70,6 +70,9 @@ function preload() {
 }
 
 function setup() {
+    // Prevent scroll on mobile/iPad
+    preventScroll();
+
     // Show welcome popup on load
     showWelcomePopup();
 
@@ -183,6 +186,39 @@ function showWelcomePopup() {
 // Close welcome popup
 function closeWelcomePopup() {
     document.getElementById('welcome-popup').style.display = 'none';
+}
+
+// Prevent scroll on mobile/iPad
+function preventScroll() {
+    // Prevent touch move on document body
+    document.body.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+
+    // Prevent pull-to-refresh
+    document.body.addEventListener('touchstart', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // Prevent double-tap zoom
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+        let now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+
+    // Allow scroll only in scrollable containers
+    let scrollableElements = document.querySelectorAll('.poem-area, .patterns-area, .modal-body, .text-display');
+    scrollableElements.forEach(element => {
+        element.addEventListener('touchmove', function(e) {
+            e.stopPropagation();
+        }, { passive: true });
+    });
 }
 
 // Toggle text panel
@@ -575,19 +611,24 @@ function drawSentenceHover(bubble) {
     textAlign(CENTER, CENTER);
     textSize(14);
 
-    // Background for context
+    // Fixed position in center of canvas
+    let boxWidth = canvasWidth - 100;
+    let boxX = 50;
+    let centerY = canvasHeight / 2;  // Fixed center Y position
+
     let txtWidth = textWidth(contextText);
-    let lines = Math.ceil(txtWidth / (canvasWidth - 100));
+    let lines = Math.ceil(txtWidth / boxWidth);
     let boxHeight = lines * 20 + 20;
 
+    // Draw box centered vertically in canvas
     fill(0);
     stroke(200);
     strokeWeight(1);
-    rect(50, bubble.y - bubbleSize - boxHeight - 10, canvasWidth - 100, boxHeight, 5);
+    rect(boxX, centerY - boxHeight / 2, boxWidth, boxHeight, 5);
 
     fill(255);
     noStroke();
-    text(contextText, 50, bubble.y - bubbleSize - boxHeight - 10, canvasWidth - 100, boxHeight);
+    text(contextText, boxX, centerY - boxHeight / 2, boxWidth, boxHeight);
 
     pop();
 }
