@@ -70,6 +70,9 @@ function preload() {
 }
 
 function setup() {
+    // Show welcome popup on load
+    showWelcomePopup();
+
     // Calculate canvas size - wait for DOM to be ready
     let container = document.getElementById('canvas-container');
     canvasWidth = container.offsetWidth || 800;
@@ -146,6 +149,40 @@ function setup() {
     // Panel toggle functionality
     document.getElementById('text-panel-header').addEventListener('click', toggleTextPanel);
     document.getElementById('pattern-panel-header').addEventListener('click', togglePatternPanel);
+
+    // Modal close functionality
+    document.getElementById('close-modal').addEventListener('click', closeModal);
+    document.getElementById('export-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'export-modal') {
+            closeModal();
+        }
+    });
+}
+
+// Close export modal
+function closeModal() {
+    document.getElementById('export-modal').style.display = 'none';
+}
+
+// Show welcome popup
+function showWelcomePopup() {
+    let popup = document.getElementById('welcome-popup');
+    popup.style.display = 'flex';
+
+    // Add close button listener
+    document.getElementById('close-welcome').addEventListener('click', closeWelcomePopup);
+
+    // Close on background click
+    popup.addEventListener('click', (e) => {
+        if (e.target.id === 'welcome-popup') {
+            closeWelcomePopup();
+        }
+    });
+}
+
+// Close welcome popup
+function closeWelcomePopup() {
+    document.getElementById('welcome-popup').style.display = 'none';
 }
 
 // Toggle text panel
@@ -915,50 +952,36 @@ function finishPoem() {
         return;
     }
 
-    // Show output card with final poem
-    let outputCard = document.getElementById('output-card');
-    outputCard.style.display = 'block';
+    // Populate modal with content
+    let originalTextDisplay = document.getElementById('original-text-display');
+    let morseTextDisplay = document.getElementById('morse-text-display');
+    let patternsGallery = document.getElementById('modal-patterns-gallery');
 
-    let finalPoem = document.getElementById('final-poem');
-    finalPoem.innerHTML = '<h3>Your Complete Poem</h3>';
+    // Clear previous content
+    originalTextDisplay.innerHTML = '';
+    morseTextDisplay.innerHTML = '';
+    patternsGallery.innerHTML = '';
 
+    // Build original text
+    let originalLines = [];
+    let morseLines = [];
     for (let i = 0; i < stanzas.length; i++) {
-        let stanzaDiv = document.createElement('div');
-        stanzaDiv.className = 'stanza-block';
-
-        let textDiv = document.createElement('div');
-        textDiv.className = 'stanza-text';
-        textDiv.textContent = stanzas[i].text;
-
-        stanzaDiv.appendChild(textDiv);
-        finalPoem.appendChild(stanzaDiv);
+        originalLines.push(`Line ${i + 1}:\n${stanzas[i].originalText || stanzas[i].text}`);
+        morseLines.push(`Line ${i + 1}:\n${stanzas[i].text}`);
     }
+    originalTextDisplay.textContent = originalLines.join('\n\n');
+    morseTextDisplay.textContent = morseLines.join('\n\n');
 
-    // Pattern gallery
-    let gallery = document.getElementById('trajectory-gallery');
-    gallery.innerHTML = '<h3>Patterns</h3>';
-
-    for (let stanza of stanzas) {
+    // Add patterns
+    for (let i = 0; i < stanzas.length; i++) {
         let img = document.createElement('img');
-        img.className = 'trajectory-mini';
-        img.src = stanza.image;
-        gallery.appendChild(img);
+        img.src = stanzas[i].image;
+        img.alt = `Pattern ${i + 1}`;
+        patternsGallery.appendChild(img);
     }
 
-    // Meta info
-    let meta = document.getElementById('meta-info');
-    let totalWords = stanzas.reduce((sum, s) => sum + s.text.split(' ').length, 0);
-    meta.innerHTML = `
-        <strong>Stats</strong><br>
-        Stanzas: ${stanzas.length} | Words: ${totalWords}<br>
-        Created: ${new Date().toLocaleString()}
-    `;
-
-    // Show export section
-    document.getElementById('export-section').style.display = 'block';
-
-    // Dim right column
-    document.querySelector('.right-column').style.opacity = '0.5';
+    // Show modal
+    document.getElementById('export-modal').style.display = 'block';
 }
 
 function resetAll() {

@@ -10,14 +10,18 @@
     
 </head>
 <body>
+    <!-- Welcome Popup -->
+    <div id="welcome-popup" class="welcome-popup">
+        <div class="welcome-content">
+            <button id="close-welcome" class="welcome-close-btn">&times;</button>
+            <h1>Path Cipher</h1>
+            <p class="welcome-description">Pick a few bubbles. Draw a path. Your path is the key. Anyone can see what you made, but only someone who walks the same path can read it clearly.</p>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Left Column -->
         <div class="left-column">
-            <div class="title-section">
-                <h1>Reconstructed Cities</h1>
-                <p class="description"></p>
-            </div>
-
             <div class="top-panel">
                 <div class="panel-header" id="text-panel-header">
                     <h2>Text</h2>
@@ -53,11 +57,34 @@
                 </div>
             </div>
 
-            <div id="output-card" class="output-card" style="display:none;">
-                <h2>Your Poem</h2>
-                <div id="final-poem"></div>
-                <div id="trajectory-gallery"></div>
-                <div id="meta-info"></div>
+        </div>
+
+        <!-- Export Modal Popup (centered on screen) -->
+        <div id="export-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Your Texts & Patterns</h2>
+                    <button id="close-modal" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-section">
+                        <h3>Original Text</h3>
+                        <div id="original-text-display" class="text-display"></div>
+                    </div>
+                    <div class="modal-section">
+                        <h3>Coded Text</h3>
+                        <div id="morse-text-display" class="text-display"></div>
+                    </div>
+                    <div class="modal-section">
+                        <h3>Patterns</h3>
+                        <div id="modal-patterns-gallery" class="modal-patterns"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="export-poem" class="btn btn-primary">Download Text</button>
+                    <button id="export-patterns" class="btn btn-primary">Download Patterns</button>
+                    <button id="export-all" class="btn btn-success">Download All</button>
+                </div>
             </div>
         </div>
 
