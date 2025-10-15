@@ -845,10 +845,10 @@ function updateCurrentStanzaDisplay() {
             text = text.replace(regex, '<span class="keyword-highlight">$1</span>');
         }
 
-        // Add sequence number with padding (01, 02, etc.)
+        // Add sequence number with padding ([01], [02], etc.)
         let sequenceStr = '';
         if (sequence !== null) {
-            sequenceStr = String(sequence).padStart(2, '0') + ' ';
+            sequenceStr = '[' + String(sequence).padStart(2, '0') + '] ';
         }
 
         htmlContent += (i > 0 ? ' ' : '') + sequenceStr + text;
@@ -1055,7 +1055,7 @@ function displayStanzas() {
                 }
 
                 // Add sequence number
-                let sequenceStr = String(sequence).padStart(2, '0') + ' ';
+                let sequenceStr = '[' + String(sequence).padStart(2, '0') + '] ';
                 htmlContent += (j > 0 ? ' ' : '') + sequenceStr + text;
             }
         } else {
@@ -1128,7 +1128,7 @@ function finishPoem() {
                 }
 
                 // Add sequence number
-                let sequenceStr = String(sequence).padStart(2, '0') + ' ';
+                let sequenceStr = '[' + String(sequence).padStart(2, '0') + '] ';
                 originalSentences += (j > 0 ? ' ' : '') + sequenceStr + originalText;
                 morseSentences += (j > 0 ? ' ' : '') + sequenceStr + morseText;
             }
@@ -1224,7 +1224,7 @@ function exportPoemOnly() {
                 }
 
                 // Add sequence number
-                let sequenceStr = String(sequence).padStart(2, '0') + ' ';
+                let sequenceStr = '[' + String(sequence).padStart(2, '0') + '] ';
                 poemText += (j > 0 ? ' ' : '') + sequenceStr + text;
             }
         } else {
@@ -1258,7 +1258,7 @@ function exportPoemOnly() {
                 }
 
                 // Add sequence number
-                let sequenceStr = String(sequence).padStart(2, '0') + ' ';
+                let sequenceStr = '[' + String(sequence).padStart(2, '0') + '] ';
                 poemText += (j > 0 ? ' ' : '') + sequenceStr + text;
             }
         } else {
@@ -1272,7 +1272,7 @@ function exportPoemOnly() {
 
     poemText += `\n---\n`;
     poemText += `Note: Keywords are marked with **double asterisks**\n`;
-    poemText += `Note: Numbers at the start (01, 02, etc.) indicate click sequence\n`;
+    poemText += `Note: Numbers in brackets ([01], [02], etc.) indicate click sequence\n`;
     poemText += `Created: ${new Date().toLocaleString()}\n`;
     poemText += `Lines: ${stanzas.length}\n`;
 
