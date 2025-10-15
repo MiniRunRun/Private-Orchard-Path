@@ -820,17 +820,17 @@ function applyMorseCodeToText() {
 
             // Higher morse level = MORE variation in bubble sizes
             // Calculate random variation range based on morse level
-            let variationRange = map(morseCodeLevel, 0, 100, 0, 60); // 0% = no variation, 100% = ±30px variation
+            let variationRange = map(morseCodeLevel, 0, 100, 0, 50); // 0% = no variation, 100% = ±25px variation
 
-            // Base size at midpoint (70)
-            let baseSize = 70;
+            // Base size at midpoint (80) - increased from 70
+            let baseSize = 80;
 
             // Add random variation (can be positive or negative)
             let randomVariation = random(-variationRange/2, variationRange/2);
             let finalSize = baseSize + randomVariation;
 
-            // Clamp to valid range (40-100)
-            pathPoint.size = constrain(finalSize, 40, 100);
+            // Clamp to valid range (55-105) - increased from (40-100)
+            pathPoint.size = constrain(finalSize, 55, 105);
         }
     }
 
@@ -904,8 +904,8 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
     let patternPadding = 25;           // Padding around pattern
     let patternLineWeight = 3;         // Connecting lines thickness
     let patternBubbleStroke = 2;       // Bubble outline thickness
-    let patternDotSizeMin = 6;         // Minimum dot size (for smallest bubble)
-    let patternDotSizeMax = 60;        // Maximum dot size (for largest bubble)
+    let patternDotSizeMin = 20;        // Minimum dot size (for smallest bubble) - increased from 6
+    let patternDotSizeMax = 80;        // Maximum dot size (for largest bubble) - increased from 60
     let patternArrowSize = 15;         // Arrow size at end
     // ============================================
 
@@ -920,8 +920,8 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
         let maxY = Math.max(...pathData.map(p => p.y));
 
         // Calculate the maximum circle size that will be drawn
-        let maxBubbleSize = Math.max(...pathData.map(p => p.size || 75));
-        let maxCircleSize = map(maxBubbleSize, 40, 100, patternDotSizeMin, patternDotSizeMax);
+        let maxBubbleSize = Math.max(...pathData.map(p => p.size || 80));
+        let maxCircleSize = map(maxBubbleSize, 55, 105, patternDotSizeMin, patternDotSizeMax);
 
         // Add extra padding to account for circle radius and arrow
         let extraPadding = maxCircleSize / 2 + patternArrowSize;
@@ -949,9 +949,9 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
             let x = effectivePadding + (pathData[i].x - minX) * scale;
             let y = effectivePadding + (pathData[i].y - minY) * scale;
 
-            // Map bubble size (40-100) to circle size (patternDotSizeMin to patternDotSizeMax)
-            let bubbleSize = pathData[i].size || 75;
-            let circleSize = map(bubbleSize, 40, 100, patternDotSizeMin, patternDotSizeMax);
+            // Map bubble size (55-105) to circle size (patternDotSizeMin to patternDotSizeMax)
+            let bubbleSize = pathData[i].size || 80;
+            let circleSize = map(bubbleSize, 55, 105, patternDotSizeMin, patternDotSizeMax);
 
             stanzaCanvas.push();
 
