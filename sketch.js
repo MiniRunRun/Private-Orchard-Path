@@ -161,6 +161,11 @@ function setup() {
             closeModal();
         }
     });
+
+    // Modal export buttons
+    document.getElementById('modal-export-poem').addEventListener('click', exportPoemOnly);
+    document.getElementById('modal-export-patterns').addEventListener('click', exportPatternsOnly);
+    document.getElementById('modal-export-all').addEventListener('click', exportAll);
 }
 
 // Close export modal
