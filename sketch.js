@@ -315,11 +315,32 @@ function generateMarkovText(currentBubble, bubbleSize) {
         // If we didn't find a match, try seed generation
         if (!foundMatch && keyword) {
             let seedSentence = generateSentenceFromSeed(keyword);
-            bestSentence = seedSentence || bestSentence;
+            if (seedSentence) {
+                // Check if seed sentence contains the keyword
+                if (seedSentence.toLowerCase().includes(keyword.toLowerCase())) {
+                    bestSentence = seedSentence;
+                    foundMatch = true;
+                }
+            }
         }
 
+        // If still no match found, force insert the keyword into the sentence
+        if (!foundMatch && keyword && bestSentence) {
+            // Insert keyword at the beginning or construct a simple sentence
+            console.log('No match found, inserting keyword into sentence');
+            bestSentence = keyword + ' ' + bestSentence;
+            foundMatch = true;
+        }
+
+        // Last resort: if no sentence at all, use just the keyword
         result = bestSentence || keyword;
         result = capitalizeFirstLetter(result);
+
+        // Final check: ensure keyword is in result
+        if (keyword && !result.toLowerCase().includes(keyword.toLowerCase())) {
+            console.warn('Keyword missing from result, forcing inclusion');
+            result = capitalizeFirstLetter(keyword) + '. ' + result;
+        }
 
         // Calculate morse percentage based on bubble size
         let morsePercentage = getMorsePercentageFromSize(bubbleSize);
@@ -350,11 +371,19 @@ function generateSentenceFromSeed(keyword) {
         let words = keyword.split(' ');
         let seed = words[0];
 
-        let result = markov.generate(1, {seed: seed});
-        if (result && result.length > 0) {
-            let sentence = Array.isArray(result) ? result[0] : result;
-            return sentence;
+        // Try multiple times to generate a sentence with the seed
+        for (let attempt = 0; attempt < 10; attempt++) {
+            let result = markov.generate(1, {seed: seed});
+            if (result && result.length > 0) {
+                let sentence = Array.isArray(result) ? result[0] : result;
+                // Verify the sentence contains the keyword
+                if (sentence.toLowerCase().includes(keyword.toLowerCase())) {
+                    console.log('Seed generation successful with keyword');
+                    return sentence;
+                }
+            }
         }
+        console.log('Seed generation did not produce sentence with keyword');
     } catch(e) {
         console.log('Seed generation failed for:', keyword);
     }
