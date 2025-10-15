@@ -230,6 +230,13 @@ body {
     margin-bottom: 15px;
 }
 
+.stanza-text .keyword-highlight {
+    background: #000;
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
 .pattern-img {
     width: 100%;
     height: auto;
@@ -478,6 +485,14 @@ body {
     padding: 10px 0;
     background: transparent;
     margin-bottom: 10px;
+}
+
+/* Keyword highlight */
+.keyword-highlight {
+    background: #000;
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 2px;
 }
 
 /* Modal Popup Styles */

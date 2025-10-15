@@ -738,7 +738,7 @@ function selectBubble(bubble) {
         bubble.selected = true;
         bubble.revealed = true;
         // Store bubble reference with position (size will be updated when morse code is applied)
-        currentPath.push({x: bubble.x, y: bubble.y, size: 75, bubble: bubble}); // Default size
+        currentPath.push({x: bubble.x, y: bubble.y, size: 75, bubble: bubble, keyword: bubble.fragment}); // Store keyword
 
         // Generate new sentence from markov (NO morse code yet)
         let generated = generateMarkovText(bubble, 0); // Pass 0 to generate without morse
@@ -747,9 +747,9 @@ function selectBubble(bubble) {
 
         // Append original text to left panel (no morse code yet)
         if (currentStanzaText.length === 0) {
-            currentStanzaText = [generated.text];
+            currentStanzaText = [{text: generated.text, keyword: bubble.fragment}];
         } else {
-            currentStanzaText.push(generated.text);
+            currentStanzaText.push({text: generated.text, keyword: bubble.fragment});
         }
 
         // Brief sentence reveal
@@ -781,7 +781,7 @@ function applyMorseCodeToText() {
         if (bubble && bubble.generatedText) {
             // Apply morse code based on global slider value
             bubble.displayText = partialTextToMorse(bubble.generatedText, morseCodeLevel);
-            currentStanzaText[i] = bubble.displayText;
+            currentStanzaText[i] = {text: bubble.displayText, keyword: pathPoint.keyword};
 
             // Higher morse level = MORE variation in bubble sizes
             // Calculate random variation range based on morse level
@@ -805,18 +805,33 @@ function applyMorseCodeToText() {
 
 function updateCurrentStanzaDisplay() {
     let display = document.getElementById('poem-display');
-    let currentText = currentStanzaText.join(' ');
+
+    // Build HTML with highlighted keywords
+    let htmlContent = '';
+    for (let i = 0; i < currentStanzaText.length; i++) {
+        let item = currentStanzaText[i];
+        let text = typeof item === 'string' ? item : item.text;
+        let keyword = typeof item === 'object' ? item.keyword : null;
+
+        if (keyword) {
+            // Highlight the keyword in the text (case-insensitive)
+            let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+            text = text.replace(regex, '<span class="keyword-highlight">$1</span>');
+        }
+
+        htmlContent += (i > 0 ? ' ' : '') + text;
+    }
 
     // Show current stanza being composed
-    if (currentText) {
+    if (htmlContent) {
         let currentDiv = document.querySelector('.current-stanza-text');
         if (!currentDiv) {
             currentDiv = document.createElement('div');
             currentDiv.className = 'current-stanza-text';
             display.appendChild(currentDiv);
         }
-        // Display text immediately (no typewriter effect)
-        currentDiv.textContent = currentText;
+        // Display text with HTML for highlighting
+        currentDiv.innerHTML = htmlContent;
     }
 }
 
@@ -919,18 +934,26 @@ function saveStanza() {
         }
     }
 
-    // Collect original text (without morse code)
+    // Collect original text (without morse code) and keywords
     let originalText = [];
+    let keywords = [];
     for (let pathPoint of currentPath) {
         if (pathPoint.bubble && pathPoint.bubble.generatedText) {
             originalText.push(pathPoint.bubble.generatedText);
         }
+        if (pathPoint.keyword) {
+            keywords.push(pathPoint.keyword);
+        }
     }
+
+    // Collect display text (with morse code) as strings
+    let displayText = currentStanzaText.map(item => typeof item === 'string' ? item : item.text);
 
     // Save stanza with both original and morse-coded text
     stanzas.push({
-        text: currentStanzaText.join(' '),           // Morse-coded text
+        text: displayText.join(' '),           // Morse-coded text
         originalText: originalText.join(' '),        // Original text without morse
+        keywords: keywords,                          // Keywords for highlighting
         image: stanzaCanvas.canvas.toDataURL(),
         timestamp: new Date()
     });
@@ -975,7 +998,19 @@ function displayStanzas() {
     for (let i = 0; i < stanzas.length; i++) {
         let textDiv = document.createElement('div');
         textDiv.className = 'stanza-text';
-        textDiv.textContent = stanzas[i].text;
+
+        // Highlight keywords in the saved stanza text
+        let text = stanzas[i].text;
+        let keywords = stanzas[i].keywords || [];
+
+        for (let keyword of keywords) {
+            if (keyword) {
+                let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+                text = text.replace(regex, '<span class="keyword-highlight">$1</span>');
+            }
+        }
+
+        textDiv.innerHTML = text;
 
         display.appendChild(textDiv);
     }
