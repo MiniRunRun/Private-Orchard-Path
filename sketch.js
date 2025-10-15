@@ -12,6 +12,7 @@ let isDragging = false;
 let hoveredBubble = null;
 let canvasWidth, canvasHeight;
 let morseCodeLevel = 0; // 0-100, controls how much text is morse coded
+let clickSequence = 0; // Track the order of clicks
 
 // RiTa Markov for text generation
 let markov = null;
@@ -737,8 +738,20 @@ function selectBubble(bubble) {
     if (!bubble.selected) {
         bubble.selected = true;
         bubble.revealed = true;
+
+        // Increment click sequence
+        clickSequence++;
+        let sequenceNumber = clickSequence;
+
         // Store bubble reference with position (size will be updated when morse code is applied)
-        currentPath.push({x: bubble.x, y: bubble.y, size: 75, bubble: bubble, keyword: bubble.fragment}); // Store keyword
+        currentPath.push({
+            x: bubble.x,
+            y: bubble.y,
+            size: 75,
+            bubble: bubble,
+            keyword: bubble.fragment,
+            sequence: sequenceNumber
+        }); // Store keyword and sequence
 
         // Generate new sentence from markov (NO morse code yet)
         let generated = generateMarkovText(bubble, 0); // Pass 0 to generate without morse
@@ -747,9 +760,17 @@ function selectBubble(bubble) {
 
         // Append original text to left panel (no morse code yet)
         if (currentStanzaText.length === 0) {
-            currentStanzaText = [{text: generated.text, keyword: bubble.fragment}];
+            currentStanzaText = [{
+                text: generated.text,
+                keyword: bubble.fragment,
+                sequence: sequenceNumber
+            }];
         } else {
-            currentStanzaText.push({text: generated.text, keyword: bubble.fragment});
+            currentStanzaText.push({
+                text: generated.text,
+                keyword: bubble.fragment,
+                sequence: sequenceNumber
+            });
         }
 
         // Brief sentence reveal
@@ -781,7 +802,11 @@ function applyMorseCodeToText() {
         if (bubble && bubble.generatedText) {
             // Apply morse code based on global slider value
             bubble.displayText = partialTextToMorse(bubble.generatedText, morseCodeLevel);
-            currentStanzaText[i] = {text: bubble.displayText, keyword: pathPoint.keyword};
+            currentStanzaText[i] = {
+                text: bubble.displayText,
+                keyword: pathPoint.keyword,
+                sequence: pathPoint.sequence
+            };
 
             // Higher morse level = MORE variation in bubble sizes
             // Calculate random variation range based on morse level
@@ -806,12 +831,13 @@ function applyMorseCodeToText() {
 function updateCurrentStanzaDisplay() {
     let display = document.getElementById('poem-display');
 
-    // Build HTML with highlighted keywords
+    // Build HTML with highlighted keywords and sequence numbers
     let htmlContent = '';
     for (let i = 0; i < currentStanzaText.length; i++) {
         let item = currentStanzaText[i];
         let text = typeof item === 'string' ? item : item.text;
         let keyword = typeof item === 'object' ? item.keyword : null;
+        let sequence = typeof item === 'object' ? item.sequence : null;
 
         if (keyword) {
             // Highlight the keyword in the text (case-insensitive)
@@ -819,7 +845,13 @@ function updateCurrentStanzaDisplay() {
             text = text.replace(regex, '<span class="keyword-highlight">$1</span>');
         }
 
-        htmlContent += (i > 0 ? ' ' : '') + text;
+        // Add sequence number with padding (01, 02, etc.)
+        let sequenceStr = '';
+        if (sequence !== null) {
+            sequenceStr = String(sequence).padStart(2, '0') + ' ';
+        }
+
+        htmlContent += (i > 0 ? ' ' : '') + sequenceStr + text;
     }
 
     // Show current stanza being composed
@@ -934,26 +966,33 @@ function saveStanza() {
         }
     }
 
-    // Collect original text (without morse code) and keywords
-    let originalText = [];
-    let keywords = [];
-    for (let pathPoint of currentPath) {
-        if (pathPoint.bubble && pathPoint.bubble.generatedText) {
-            originalText.push(pathPoint.bubble.generatedText);
-        }
-        if (pathPoint.keyword) {
-            keywords.push(pathPoint.keyword);
-        }
+    // Collect structured data for each sentence
+    let sentencesData = [];
+    for (let i = 0; i < currentPath.length; i++) {
+        let pathPoint = currentPath[i];
+        let item = currentStanzaText[i];
+
+        sentencesData.push({
+            originalText: pathPoint.bubble ? pathPoint.bubble.generatedText : '',
+            displayText: typeof item === 'string' ? item : item.text,
+            keyword: pathPoint.keyword || '',
+            sequence: pathPoint.sequence || (i + 1)
+        });
     }
 
-    // Collect display text (with morse code) as strings
-    let displayText = currentStanzaText.map(item => typeof item === 'string' ? item : item.text);
+    // Also save as joined strings for backward compatibility
+    let originalText = sentencesData.map(s => s.originalText).join(' ');
+    let displayText = sentencesData.map(s => s.displayText).join(' ');
+    let keywords = sentencesData.map(s => s.keyword);
+    let sequences = sentencesData.map(s => s.sequence);
 
-    // Save stanza with both original and morse-coded text
+    // Save stanza with structured sentence data
     stanzas.push({
-        text: displayText.join(' '),           // Morse-coded text
-        originalText: originalText.join(' '),        // Original text without morse
+        text: displayText,           // Morse-coded text (joined)
+        originalText: originalText,        // Original text without morse (joined)
         keywords: keywords,                          // Keywords for highlighting
+        sequences: sequences,                        // Sequence numbers
+        sentencesData: sentencesData,               // Structured data for each sentence
         image: stanzaCanvas.canvas.toDataURL(),
         timestamp: new Date()
     });
@@ -999,19 +1038,43 @@ function displayStanzas() {
         let textDiv = document.createElement('div');
         textDiv.className = 'stanza-text';
 
-        // Highlight keywords in the saved stanza text
-        let text = stanzas[i].text;
-        let keywords = stanzas[i].keywords || [];
+        let htmlContent = '';
 
-        for (let keyword of keywords) {
-            if (keyword) {
-                let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
-                text = text.replace(regex, '<span class="keyword-highlight">$1</span>');
+        // Use structured sentence data if available
+        if (stanzas[i].sentencesData && stanzas[i].sentencesData.length > 0) {
+            for (let j = 0; j < stanzas[i].sentencesData.length; j++) {
+                let sentence = stanzas[i].sentencesData[j];
+                let text = sentence.displayText;
+                let keyword = sentence.keyword;
+                let sequence = sentence.sequence;
+
+                // Highlight keyword
+                if (keyword) {
+                    let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+                    text = text.replace(regex, '<span class="keyword-highlight">$1</span>');
+                }
+
+                // Add sequence number
+                let sequenceStr = String(sequence).padStart(2, '0') + ' ';
+                htmlContent += (j > 0 ? ' ' : '') + sequenceStr + text;
             }
+        } else {
+            // Fallback for old data without sentencesData
+            let text = stanzas[i].text;
+            let keywords = stanzas[i].keywords || [];
+            let sequences = stanzas[i].sequences || [];
+
+            for (let keyword of keywords) {
+                if (keyword) {
+                    let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+                    text = text.replace(regex, '<span class="keyword-highlight">$1</span>');
+                }
+            }
+
+            htmlContent = text;
         }
 
-        textDiv.innerHTML = text;
-
+        textDiv.innerHTML = htmlContent;
         display.appendChild(textDiv);
     }
 }
@@ -1038,15 +1101,60 @@ function finishPoem() {
     morseTextDisplay.innerHTML = '';
     patternsGallery.innerHTML = '';
 
-    // Build original text
-    let originalLines = [];
-    let morseLines = [];
+    // Build original text with highlighted keywords and sequence numbers
+    let originalHTML = '';
+    let morseHTML = '';
     for (let i = 0; i < stanzas.length; i++) {
-        originalLines.push(`Line ${i + 1}:\n${stanzas[i].originalText || stanzas[i].text}`);
-        morseLines.push(`Line ${i + 1}:\n${stanzas[i].text}`);
+        originalHTML += `Line ${i + 1}:<br>`;
+        morseHTML += `Line ${i + 1}:<br>`;
+
+        // Use structured sentence data if available
+        if (stanzas[i].sentencesData && stanzas[i].sentencesData.length > 0) {
+            let originalSentences = '';
+            let morseSentences = '';
+
+            for (let j = 0; j < stanzas[i].sentencesData.length; j++) {
+                let sentence = stanzas[i].sentencesData[j];
+                let originalText = sentence.originalText;
+                let morseText = sentence.displayText;
+                let keyword = sentence.keyword;
+                let sequence = sentence.sequence;
+
+                // Highlight keywords
+                if (keyword) {
+                    let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+                    originalText = originalText.replace(regex, '<span class="keyword-highlight">$1</span>');
+                    morseText = morseText.replace(regex, '<span class="keyword-highlight">$1</span>');
+                }
+
+                // Add sequence number
+                let sequenceStr = String(sequence).padStart(2, '0') + ' ';
+                originalSentences += (j > 0 ? ' ' : '') + sequenceStr + originalText;
+                morseSentences += (j > 0 ? ' ' : '') + sequenceStr + morseText;
+            }
+
+            originalHTML += originalSentences + '<br><br>';
+            morseHTML += morseSentences + '<br><br>';
+        } else {
+            // Fallback for old data
+            let originalText = stanzas[i].originalText || stanzas[i].text;
+            let morseText = stanzas[i].text;
+            let keywords = stanzas[i].keywords || [];
+
+            for (let keyword of keywords) {
+                if (keyword) {
+                    let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+                    originalText = originalText.replace(regex, '<span class="keyword-highlight">$1</span>');
+                    morseText = morseText.replace(regex, '<span class="keyword-highlight">$1</span>');
+                }
+            }
+
+            originalHTML += originalText + '<br><br>';
+            morseHTML += morseText + '<br><br>';
+        }
     }
-    originalTextDisplay.textContent = originalLines.join('\n\n');
-    morseTextDisplay.textContent = morseLines.join('\n\n');
+    originalTextDisplay.innerHTML = originalHTML;
+    morseTextDisplay.innerHTML = morseHTML;
 
     // Add patterns
     for (let i = 0; i < stanzas.length; i++) {
@@ -1068,6 +1176,7 @@ function resetAll() {
     stanzas = [];
     currentPath = [];
     currentStanzaText = [];
+    clickSequence = 0; // Reset sequence counter
 
     document.getElementById('poem-display').innerHTML = '';
     document.getElementById('output-card').style.display = 'none';
@@ -1079,23 +1188,91 @@ function resetAll() {
     displayPatterns();
 }
 
+// Helper function to add text markers for keywords
+function addKeywordMarkers(text, keywords) {
+    if (!keywords || keywords.length === 0) return text;
+
+    for (let keyword of keywords) {
+        if (keyword) {
+            let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+            text = text.replace(regex, '**$1**');
+        }
+    }
+    return text;
+}
+
 // Export ONLY the poem text (both original and morse-coded versions)
 function exportPoemOnly() {
     let poemText = '=== ORIGINAL TEXT (No Morse Code) ===\n\n';
 
-    // Export original text
+    // Export original text with highlighted keywords and sequence numbers
     for (let i = 0; i < stanzas.length; i++) {
-        poemText += `Line ${i + 1}:\n${stanzas[i].originalText || stanzas[i].text}\n\n`;
+        poemText += `Line ${i + 1}:\n`;
+
+        // Use structured sentence data if available
+        if (stanzas[i].sentencesData && stanzas[i].sentencesData.length > 0) {
+            for (let j = 0; j < stanzas[i].sentencesData.length; j++) {
+                let sentence = stanzas[i].sentencesData[j];
+                let text = sentence.originalText;
+                let keyword = sentence.keyword;
+                let sequence = sentence.sequence;
+
+                // Add keyword markers
+                if (keyword) {
+                    let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+                    text = text.replace(regex, '**$1**');
+                }
+
+                // Add sequence number
+                let sequenceStr = String(sequence).padStart(2, '0') + ' ';
+                poemText += (j > 0 ? ' ' : '') + sequenceStr + text;
+            }
+        } else {
+            // Fallback for old data
+            let originalText = stanzas[i].originalText || stanzas[i].text;
+            let highlightedOriginal = addKeywordMarkers(originalText, stanzas[i].keywords);
+            poemText += highlightedOriginal;
+        }
+
+        poemText += '\n\n';
     }
 
     poemText += '\n\n=== MORSE-CODED TEXT ===\n\n';
 
-    // Export morse-coded text
+    // Export morse-coded text with highlighted keywords and sequence numbers
     for (let i = 0; i < stanzas.length; i++) {
-        poemText += `Line ${i + 1}:\n${stanzas[i].text}\n\n`;
+        poemText += `Line ${i + 1}:\n`;
+
+        // Use structured sentence data if available
+        if (stanzas[i].sentencesData && stanzas[i].sentencesData.length > 0) {
+            for (let j = 0; j < stanzas[i].sentencesData.length; j++) {
+                let sentence = stanzas[i].sentencesData[j];
+                let text = sentence.displayText;
+                let keyword = sentence.keyword;
+                let sequence = sentence.sequence;
+
+                // Add keyword markers
+                if (keyword) {
+                    let regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+                    text = text.replace(regex, '**$1**');
+                }
+
+                // Add sequence number
+                let sequenceStr = String(sequence).padStart(2, '0') + ' ';
+                poemText += (j > 0 ? ' ' : '') + sequenceStr + text;
+            }
+        } else {
+            // Fallback for old data
+            let highlightedMorse = addKeywordMarkers(stanzas[i].text, stanzas[i].keywords);
+            poemText += highlightedMorse;
+        }
+
+        poemText += '\n\n';
     }
 
     poemText += `\n---\n`;
+    poemText += `Note: Keywords are marked with **double asterisks**\n`;
+    poemText += `Note: Numbers at the start (01, 02, etc.) indicate click sequence\n`;
     poemText += `Created: ${new Date().toLocaleString()}\n`;
     poemText += `Lines: ${stanzas.length}\n`;
 

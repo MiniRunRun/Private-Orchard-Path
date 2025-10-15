@@ -593,6 +593,13 @@ body {
     overflow-y: auto;
 }
 
+.text-display .keyword-highlight {
+    background: #000;
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
 .modal-patterns {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
