@@ -13,6 +13,8 @@ let hoveredBubble = null;
 let canvasWidth, canvasHeight;
 let morseCodeLevel = 0; // 0-100, controls how much text is morse coded
 let clickSequence = 0; // Track the order of clicks
+let patternStyle = 'solid'; // 'solid' or 'hollow' - controls pattern circle style
+let patternDisplay = 'circles'; // 'circles' or 'numbers' - controls whether to show sequence numbers
 
 // RiTa Markov for text generation
 let markov = null;
@@ -141,6 +143,18 @@ function setup() {
         document.getElementById('morse-value').textContent = morseCodeLevel;
         // Apply morse code in real-time
         applyMorseCodeToText();
+    });
+
+    // Pattern style selector
+    document.getElementById('pattern-style').addEventListener('change', (e) => {
+        patternStyle = e.target.value;
+        console.log('Pattern style changed to:', patternStyle);
+    });
+
+    // Pattern display mode selector
+    document.getElementById('pattern-display').addEventListener('change', (e) => {
+        patternDisplay = e.target.value;
+        console.log('Pattern display mode changed to:', patternDisplay);
     });
 
     document.getElementById('save-stanza').addEventListener('click', saveStanza);
@@ -936,7 +950,7 @@ function saveStanza() {
             stanzaCanvas.line(x1, y1, x2, y2);
         }
 
-        // Draw bubbles as solid black circles
+        // Draw bubbles based on selected pattern style
         for (let i = 0; i < currentPath.length; i++) {
             let x = patternPadding + (currentPath[i].x - minX) * scale;
             let y = patternPadding + (currentPath[i].y - minY) * scale;
@@ -945,11 +959,41 @@ function saveStanza() {
             let bubbleSize = currentPath[i].size || 75;
             let circleSize = map(bubbleSize, 40, 100, patternDotSizeMin, patternDotSizeMax);
 
-            // Draw solid black circle - filled with no stroke
             stanzaCanvas.push();
-            stanzaCanvas.fill(0);
-            stanzaCanvas.noStroke();
-            stanzaCanvas.ellipse(x, y, circleSize, circleSize);
+
+            if (patternDisplay === 'numbers') {
+                // Draw white circle with black outline for numbers mode
+                stanzaCanvas.fill(255);
+                stanzaCanvas.stroke(0);
+                stanzaCanvas.strokeWeight(patternBubbleStroke);
+                stanzaCanvas.ellipse(x, y, circleSize, circleSize);
+
+                // Draw sequence number in the center
+                let sequence = currentPath[i].sequence || (i + 1);
+                stanzaCanvas.fill(0);
+                stanzaCanvas.noStroke();
+                stanzaCanvas.textAlign(CENTER, CENTER);
+                stanzaCanvas.textFont('Sometype Mono');
+                // Scale text size based on circle size
+                let textSize = circleSize * 0.5;
+                stanzaCanvas.textSize(textSize);
+                stanzaCanvas.text(String(sequence).padStart(2, '0'), x, y);
+            } else {
+                // Original style modes (solid or hollow circles)
+                if (patternStyle === 'solid') {
+                    // Draw solid black circle - filled with no stroke
+                    stanzaCanvas.fill(0);
+                    stanzaCanvas.noStroke();
+                    stanzaCanvas.ellipse(x, y, circleSize, circleSize);
+                } else {
+                    // Draw hollow circle - stroke only, no fill
+                    stanzaCanvas.noFill();
+                    stanzaCanvas.stroke(0);
+                    stanzaCanvas.strokeWeight(patternBubbleStroke);
+                    stanzaCanvas.ellipse(x, y, circleSize, circleSize);
+                }
+            }
+
             stanzaCanvas.pop();
         }
 
