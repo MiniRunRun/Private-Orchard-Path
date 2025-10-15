@@ -145,18 +145,6 @@ function setup() {
         applyMorseCodeToText();
     });
 
-    // Pattern style selector
-    document.getElementById('pattern-style').addEventListener('change', (e) => {
-        patternStyle = e.target.value;
-        console.log('Pattern style changed to:', patternStyle);
-    });
-
-    // Pattern display mode selector
-    document.getElementById('pattern-display').addEventListener('change', (e) => {
-        patternDisplay = e.target.value;
-        console.log('Pattern display mode changed to:', patternDisplay);
-    });
-
     document.getElementById('save-stanza').addEventListener('click', saveStanza);
     document.getElementById('finish-poem').addEventListener('click', finishPoem);
     document.getElementById('reset').addEventListener('click', resetAll);
@@ -180,6 +168,9 @@ function setup() {
     document.getElementById('modal-export-poem').addEventListener('click', exportPoemOnly);
     document.getElementById('modal-export-patterns').addEventListener('click', exportPatternsOnly);
     document.getElementById('modal-export-all').addEventListener('click', exportAll);
+
+    // Pattern regeneration button
+    document.getElementById('regenerate-patterns').addEventListener('click', regenerateAllPatterns);
 }
 
 // Close export modal
@@ -904,13 +895,8 @@ function displayPatterns() {
     }
 }
 
-// Save current stanza and reset for next one
-function saveStanza() {
-    if (currentStanzaText.length === 0) {
-        alert('Create a pattern first by selecting bubbles');
-        return;
-    }
-
+// Generate pattern image with specified style
+function generatePatternImage(pathData, style = 'solid', display = 'circles') {
     // ============================================
     // PATTERN VISUAL SETTINGS - ADJUST HERE
     // ============================================
@@ -927,14 +913,22 @@ function saveStanza() {
     let stanzaCanvas = createGraphics(patternCanvasSize, patternCanvasSize);
     stanzaCanvas.background(255);
 
-    if (currentPath.length > 1) {
-        let minX = Math.min(...currentPath.map(p => p.x));
-        let maxX = Math.max(...currentPath.map(p => p.x));
-        let minY = Math.min(...currentPath.map(p => p.y));
-        let maxY = Math.max(...currentPath.map(p => p.y));
+    if (pathData.length > 1) {
+        let minX = Math.min(...pathData.map(p => p.x));
+        let maxX = Math.max(...pathData.map(p => p.x));
+        let minY = Math.min(...pathData.map(p => p.y));
+        let maxY = Math.max(...pathData.map(p => p.y));
 
-        let scaleX = (patternCanvasSize - 2 * patternPadding) / (maxX - minX || 1);
-        let scaleY = (patternCanvasSize - 2 * patternPadding) / (maxY - minY || 1);
+        // Calculate the maximum circle size that will be drawn
+        let maxBubbleSize = Math.max(...pathData.map(p => p.size || 75));
+        let maxCircleSize = map(maxBubbleSize, 40, 100, patternDotSizeMin, patternDotSizeMax);
+
+        // Add extra padding to account for circle radius and arrow
+        let extraPadding = maxCircleSize / 2 + patternArrowSize;
+        let effectivePadding = patternPadding + extraPadding;
+
+        let scaleX = (patternCanvasSize - 2 * effectivePadding) / (maxX - minX || 1);
+        let scaleY = (patternCanvasSize - 2 * effectivePadding) / (maxY - minY || 1);
         let scale = Math.min(scaleX, scaleY, 1);
 
         stanzaCanvas.strokeWeight(patternLineWeight);
@@ -942,45 +936,45 @@ function saveStanza() {
         stanzaCanvas.noFill();
 
         // Draw connecting lines
-        for (let i = 0; i < currentPath.length - 1; i++) {
-            let x1 = patternPadding + (currentPath[i].x - minX) * scale;
-            let y1 = patternPadding + (currentPath[i].y - minY) * scale;
-            let x2 = patternPadding + (currentPath[i + 1].x - minX) * scale;
-            let y2 = patternPadding + (currentPath[i + 1].y - minY) * scale;
+        for (let i = 0; i < pathData.length - 1; i++) {
+            let x1 = effectivePadding + (pathData[i].x - minX) * scale;
+            let y1 = effectivePadding + (pathData[i].y - minY) * scale;
+            let x2 = effectivePadding + (pathData[i + 1].x - minX) * scale;
+            let y2 = effectivePadding + (pathData[i + 1].y - minY) * scale;
             stanzaCanvas.line(x1, y1, x2, y2);
         }
 
         // Draw bubbles based on selected pattern style
-        for (let i = 0; i < currentPath.length; i++) {
-            let x = patternPadding + (currentPath[i].x - minX) * scale;
-            let y = patternPadding + (currentPath[i].y - minY) * scale;
+        for (let i = 0; i < pathData.length; i++) {
+            let x = effectivePadding + (pathData[i].x - minX) * scale;
+            let y = effectivePadding + (pathData[i].y - minY) * scale;
 
             // Map bubble size (40-100) to circle size (patternDotSizeMin to patternDotSizeMax)
-            let bubbleSize = currentPath[i].size || 75;
+            let bubbleSize = pathData[i].size || 75;
             let circleSize = map(bubbleSize, 40, 100, patternDotSizeMin, patternDotSizeMax);
 
             stanzaCanvas.push();
 
-            if (patternDisplay === 'numbers') {
+            if (display === 'numbers') {
                 // Draw white circle with black outline for numbers mode
                 stanzaCanvas.fill(255);
                 stanzaCanvas.stroke(0);
                 stanzaCanvas.strokeWeight(patternBubbleStroke);
                 stanzaCanvas.ellipse(x, y, circleSize, circleSize);
 
-                // Draw sequence number in the center
-                let sequence = currentPath[i].sequence || (i + 1);
+                // Draw sequence number in the center with fixed size
+                let sequence = pathData[i].sequence || (i + 1);
                 stanzaCanvas.fill(0);
                 stanzaCanvas.noStroke();
                 stanzaCanvas.textAlign(CENTER, CENTER);
                 stanzaCanvas.textFont('Sometype Mono');
-                // Scale text size based on circle size
-                let textSize = circleSize * 0.5;
+                // Fixed text size for consistency
+                let textSize = 18;
                 stanzaCanvas.textSize(textSize);
                 stanzaCanvas.text(String(sequence).padStart(2, '0'), x, y);
             } else {
                 // Original style modes (solid or hollow circles)
-                if (patternStyle === 'solid') {
+                if (style === 'solid') {
                     // Draw solid black circle - filled with no stroke
                     stanzaCanvas.fill(0);
                     stanzaCanvas.noStroke();
@@ -998,11 +992,11 @@ function saveStanza() {
         }
 
         // Draw ARROW at the end
-        if (currentPath.length >= 2) {
-            let x1 = patternPadding + (currentPath[currentPath.length - 2].x - minX) * scale;
-            let y1 = patternPadding + (currentPath[currentPath.length - 2].y - minY) * scale;
-            let x2 = patternPadding + (currentPath[currentPath.length - 1].x - minX) * scale;
-            let y2 = patternPadding + (currentPath[currentPath.length - 1].y - minY) * scale;
+        if (pathData.length >= 2) {
+            let x1 = effectivePadding + (pathData[pathData.length - 2].x - minX) * scale;
+            let y1 = effectivePadding + (pathData[pathData.length - 2].y - minY) * scale;
+            let x2 = effectivePadding + (pathData[pathData.length - 1].x - minX) * scale;
+            let y2 = effectivePadding + (pathData[pathData.length - 1].y - minY) * scale;
 
             let angle = Math.atan2(y2 - y1, x2 - x1);
 
@@ -1014,6 +1008,19 @@ function saveStanza() {
             stanzaCanvas.pop();
         }
     }
+
+    return stanzaCanvas.canvas.toDataURL();
+}
+
+// Save current stanza and reset for next one
+function saveStanza() {
+    if (currentStanzaText.length === 0) {
+        alert('Create a pattern first by selecting bubbles');
+        return;
+    }
+
+    // Generate pattern image with default style
+    let patternImage = generatePatternImage(currentPath, patternStyle, patternDisplay);
 
     // Collect structured data for each sentence
     let sentencesData = [];
@@ -1035,14 +1042,15 @@ function saveStanza() {
     let keywords = sentencesData.map(s => s.keyword);
     let sequences = sentencesData.map(s => s.sequence);
 
-    // Save stanza with structured sentence data
+    // Save stanza with structured sentence data and path data
     stanzas.push({
         text: displayText,           // Morse-coded text (joined)
         originalText: originalText,        // Original text without morse (joined)
         keywords: keywords,                          // Keywords for highlighting
         sequences: sequences,                        // Sequence numbers
         sentencesData: sentencesData,               // Structured data for each sentence
-        image: stanzaCanvas.canvas.toDataURL(),
+        pathData: JSON.parse(JSON.stringify(currentPath)), // Deep copy of path data for regeneration
+        image: patternImage,
         timestamp: new Date()
     });
 
@@ -1128,6 +1136,37 @@ function displayStanzas() {
     }
 }
 
+// Regenerate all patterns with selected style
+function regenerateAllPatterns() {
+    let style = document.getElementById('modal-pattern-style').value;
+    let display = document.getElementById('modal-pattern-display').value;
+
+    console.log('Regenerating patterns with style:', style, 'display:', display);
+
+    // Regenerate all pattern images
+    for (let i = 0; i < stanzas.length; i++) {
+        if (stanzas[i].pathData) {
+            stanzas[i].image = generatePatternImage(stanzas[i].pathData, style, display);
+        }
+    }
+
+    // Update modal patterns gallery
+    updateModalPatternsGallery();
+}
+
+// Update patterns gallery in modal
+function updateModalPatternsGallery() {
+    let patternsGallery = document.getElementById('modal-patterns-gallery');
+    patternsGallery.innerHTML = '';
+
+    for (let i = 0; i < stanzas.length; i++) {
+        let img = document.createElement('img');
+        img.src = stanzas[i].image;
+        img.alt = `Pattern ${i + 1}`;
+        patternsGallery.appendChild(img);
+    }
+}
+
 // Finish poem and show export options
 function finishPoem() {
     // Auto-save current pattern if exists
@@ -1205,13 +1244,8 @@ function finishPoem() {
     originalTextDisplay.innerHTML = originalHTML;
     morseTextDisplay.innerHTML = morseHTML;
 
-    // Add patterns
-    for (let i = 0; i < stanzas.length; i++) {
-        let img = document.createElement('img');
-        img.src = stanzas[i].image;
-        img.alt = `Pattern ${i + 1}`;
-        patternsGallery.appendChild(img);
-    }
+    // Update patterns gallery
+    updateModalPatternsGallery();
 
     // Show modal
     document.getElementById('export-modal').style.display = 'block';

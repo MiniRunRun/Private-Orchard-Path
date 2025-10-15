@@ -79,6 +79,23 @@
                     </div>
                     <div class="modal-section">
                         <h3>Patterns</h3>
+                        <div class="pattern-style-controls">
+                            <div class="pattern-control-group">
+                                <label>Pattern Style:</label>
+                                <select id="modal-pattern-style">
+                                    <option value="solid">Solid Circles</option>
+                                    <option value="hollow">Hollow Circles</option>
+                                </select>
+                            </div>
+                            <div class="pattern-control-group">
+                                <label>Pattern Display:</label>
+                                <select id="modal-pattern-display">
+                                    <option value="circles">Circles Only</option>
+                                    <option value="numbers">Show Numbers</option>
+                                </select>
+                            </div>
+                            <button id="regenerate-patterns" class="btn btn-secondary">Update Patterns</button>
+                        </div>
                         <div id="modal-patterns-gallery" class="modal-patterns"></div>
                     </div>
                 </div>
@@ -104,20 +121,6 @@
                 <div class="control-group">
                     <label>Coded Level: <span id="morse-value">0</span>%</label>
                     <input type="range" id="morse-slider" min="0" max="100" value="0">
-                </div>
-                <div class="control-group">
-                    <label>Pattern Style:</label>
-                    <select id="pattern-style">
-                        <option value="solid">Solid Circles</option>
-                        <option value="hollow">Hollow Circles</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label>Pattern Display:</label>
-                    <select id="pattern-display">
-                        <option value="circles">Circles Only</option>
-                        <option value="numbers">Show Numbers</option>
-                    </select>
                 </div>
             </div>
 
