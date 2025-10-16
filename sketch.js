@@ -856,7 +856,7 @@ function applyMorseCodeToText() {
 
             // Higher morse level = MORE variation in bubble sizes
             // Calculate random variation range based on morse level
-            let variationRange = map(morseCodeLevel, 0, 100, 0, 40); // 0% = no variation, 100% = ±20px variation
+            let variationRange = map(morseCodeLevel, 0, 100, 0, 80); // 0% = no variation, 100% = ±40px variation
 
             // Base size at midpoint (100)
             let baseSize = 100;
@@ -865,8 +865,8 @@ function applyMorseCodeToText() {
             let randomVariation = random(-variationRange/2, variationRange/2);
             let finalSize = baseSize + randomVariation;
 
-            // Clamp to valid range (80-120)
-            pathPoint.size = constrain(finalSize, 80, 120);
+            // Clamp to valid range (60-140) - wider range for more dramatic variation
+            pathPoint.size = constrain(finalSize, 60, 140);
         }
     }
 
@@ -985,9 +985,9 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles', nu
             let x = effectivePadding + (pathData[i].x - minX) * scale;
             let y = effectivePadding + (pathData[i].y - minY) * scale;
 
-            // Map bubble size (80-120) to circle size (patternDotSizeMin to patternDotSizeMax)
+            // Map bubble size (60-140) to circle size (patternDotSizeMin to patternDotSizeMax)
             let bubbleSize = pathData[i].size || 100;
-            let circleSize = map(bubbleSize, 80, 120, patternDotSizeMin, patternDotSizeMax);
+            let circleSize = map(bubbleSize, 60, 140, patternDotSizeMin, patternDotSizeMax);
 
             stanzaCanvas.push();
 
