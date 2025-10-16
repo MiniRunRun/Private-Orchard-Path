@@ -289,6 +289,7 @@ body {
 
 .btn-secondary {
     background: #000000;
+    display: flex;
     color: white;
 }
 
