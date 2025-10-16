@@ -606,6 +606,7 @@ body {
 
 .pattern-style-controls {
     display: flex;
+    flex-wrap: wrap;
     gap: 15px;
     align-items: center;
     margin-bottom: 20px;
