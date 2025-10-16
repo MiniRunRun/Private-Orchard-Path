@@ -877,23 +877,17 @@ function applyMorseCodeToText() {
     console.log(`Morse code applied: ${morseCodeLevel}% -> bubble sizes randomized with variation range: ${map(morseCodeLevel, 0, 100, 0, 60).toFixed(1)}px`);
 }
 
-// Randomize bubble sizes in current path
+// Randomize bubble sizes on the canvas (right panel)
 function randomizeBubbleSizes() {
-    if (currentPath.length === 0) {
-        alert('Please select some bubbles first to create a path');
-        return;
+    // Randomize each bubble's size on the canvas
+    for (let i = 0; i < bubbles.length; i++) {
+        let bubble = bubbles[i];
+
+        // Generate random size within range (40-110 for good variation)
+        bubble.size = random(40, 110);
     }
 
-    // Randomize each bubble size in the current path
-    for (let i = 0; i < currentPath.length; i++) {
-        let pathPoint = currentPath[i];
-
-        // Generate random size within full range
-        let randomSize = random(60, 140);
-        pathPoint.size = randomSize;
-    }
-
-    console.log(`Randomized ${currentPath.length} bubble sizes in current path`);
+    console.log(`Randomized ${bubbles.length} bubble sizes on canvas`);
 }
 
 function updateCurrentStanzaDisplay() {
