@@ -469,6 +469,12 @@ body {
     cursor: pointer;
 }
 
+.control-group .btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
 #canvas-container {
     flex: 1;
     width: 100%;

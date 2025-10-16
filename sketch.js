@@ -146,6 +146,9 @@ function setup() {
         applyMorseCodeToText();
     });
 
+    // Randomize bubble sizes button
+    document.getElementById('randomize-bubbles').addEventListener('click', randomizeBubbleSizes);
+
     document.getElementById('save-stanza').addEventListener('click', saveStanza);
     document.getElementById('finish-poem').addEventListener('click', finishPoem);
     document.getElementById('reset').addEventListener('click', resetAll);
@@ -872,6 +875,25 @@ function applyMorseCodeToText() {
 
     updateCurrentStanzaDisplay();
     console.log(`Morse code applied: ${morseCodeLevel}% -> bubble sizes randomized with variation range: ${map(morseCodeLevel, 0, 100, 0, 60).toFixed(1)}px`);
+}
+
+// Randomize bubble sizes in current path
+function randomizeBubbleSizes() {
+    if (currentPath.length === 0) {
+        alert('Please select some bubbles first to create a path');
+        return;
+    }
+
+    // Randomize each bubble size in the current path
+    for (let i = 0; i < currentPath.length; i++) {
+        let pathPoint = currentPath[i];
+
+        // Generate random size within full range
+        let randomSize = random(60, 140);
+        pathPoint.size = randomSize;
+    }
+
+    console.log(`Randomized ${currentPath.length} bubble sizes in current path`);
 }
 
 function updateCurrentStanzaDisplay() {
