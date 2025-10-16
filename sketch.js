@@ -985,24 +985,46 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
             stanzaCanvas.push();
 
             if (display === 'numbers') {
-                // Draw white circle with black outline for numbers mode
+                // Numbers inside circles - Draw white circle with black outline
                 stanzaCanvas.fill(255);
                 stanzaCanvas.stroke(0);
                 stanzaCanvas.strokeWeight(patternBubbleStroke);
                 stanzaCanvas.ellipse(x, y, circleSize, circleSize);
 
-                // Draw sequence number in the center with fixed size
+                // Draw sequence number in the center
                 let sequence = pathData[i].sequence || (i + 1);
                 stanzaCanvas.fill(0);
                 stanzaCanvas.noStroke();
                 stanzaCanvas.textAlign(CENTER, CENTER);
                 stanzaCanvas.textFont('Sometype Mono');
-                // Fixed text size for consistency - increased for better readability
                 let textSize = 24;
                 stanzaCanvas.textSize(textSize);
                 stanzaCanvas.text(String(sequence).padStart(2, '0'), x, y);
+            } else if (display === 'numbers-beside') {
+                // Numbers beside circles - Draw circle based on style
+                if (style === 'solid') {
+                    stanzaCanvas.fill(0);
+                    stanzaCanvas.noStroke();
+                } else {
+                    stanzaCanvas.noFill();
+                    stanzaCanvas.stroke(0);
+                    stanzaCanvas.strokeWeight(patternBubbleStroke);
+                }
+                stanzaCanvas.ellipse(x, y, circleSize, circleSize);
+
+                // Draw sequence number beside the circle (to the right)
+                let sequence = pathData[i].sequence || (i + 1);
+                stanzaCanvas.fill(0);
+                stanzaCanvas.noStroke();
+                stanzaCanvas.textAlign(LEFT, CENTER);
+                stanzaCanvas.textFont('Sometype Mono');
+                let textSize = 24;
+                stanzaCanvas.textSize(textSize);
+                // Position number to the right of circle with small gap
+                let numberX = x + circleSize / 2 + 8;
+                stanzaCanvas.text(String(sequence).padStart(2, '0'), numberX, y);
             } else {
-                // Original style modes (solid or hollow circles)
+                // Circles only mode (original style modes)
                 if (style === 'solid') {
                     // Draw solid black circle - filled with no stroke
                     stanzaCanvas.fill(0);
