@@ -1012,17 +1012,21 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
                 }
                 stanzaCanvas.ellipse(x, y, circleSize, circleSize);
 
-                // Draw sequence number beside the circle (to the right)
+                // Draw sequence number beside the circle at 45 degree angle (top-right)
                 let sequence = pathData[i].sequence || (i + 1);
                 stanzaCanvas.fill(0);
                 stanzaCanvas.noStroke();
-                stanzaCanvas.textAlign(LEFT, CENTER);
+                stanzaCanvas.textAlign(LEFT, BOTTOM);
                 stanzaCanvas.textFont('Sometype Mono');
                 let textSize = 24;
                 stanzaCanvas.textSize(textSize);
-                // Position number to the right of circle with small gap
-                let numberX = x + circleSize / 2 + 8;
-                stanzaCanvas.text(String(sequence).padStart(2, '0'), numberX, y);
+                // Position number at 45 degree angle (top-right)
+                // 45 degrees = PI/4 radians, cos(45°) = sin(45°) ≈ 0.707
+                let angle = Math.PI / 4; // 45 degrees
+                let distance = circleSize / 2 + 8; // radius + gap
+                let numberX = x + distance * Math.cos(angle);
+                let numberY = y - distance * Math.sin(angle);
+                stanzaCanvas.text(String(sequence).padStart(2, '0'), numberX, numberY);
             } else {
                 // Circles only mode (original style modes)
                 if (style === 'solid') {
