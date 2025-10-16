@@ -640,6 +640,16 @@ body {
     min-width: 100px;
 }
 
+.pattern-control-group .btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.pattern-control-group input[type="range"] {
+    max-width: 150px;
+}
+
 .modal-patterns {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
