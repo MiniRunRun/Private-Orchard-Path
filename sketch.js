@@ -171,6 +171,11 @@ function setup() {
 
     // Pattern regeneration button
     document.getElementById('regenerate-patterns').addEventListener('click', regenerateAllPatterns);
+
+    // Number size slider
+    document.getElementById('modal-number-size').addEventListener('input', function(e) {
+        document.getElementById('number-size-value').textContent = e.target.value;
+    });
 }
 
 // Close export modal
@@ -925,7 +930,7 @@ function displayPatterns() {
 }
 
 // Generate pattern image with specified style
-function generatePatternImage(pathData, style = 'solid', display = 'circles') {
+function generatePatternImage(pathData, style = 'solid', display = 'circles', numberSize = 8) {
     // ============================================
     // PATTERN VISUAL SETTINGS - ADJUST HERE
     // ============================================
@@ -997,8 +1002,7 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
                 stanzaCanvas.noStroke();
                 stanzaCanvas.textAlign(CENTER, CENTER);
                 stanzaCanvas.textFont('Sometype Mono');
-                let textSize = 8;
-                stanzaCanvas.textSize(textSize);
+                stanzaCanvas.textSize(numberSize);
                 stanzaCanvas.text(String(sequence).padStart(2, '0'), x, y);
             } else if (display === 'numbers-beside') {
                 // Numbers beside circles - Draw circle based on style
@@ -1018,8 +1022,7 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
                 stanzaCanvas.noStroke();
                 stanzaCanvas.textAlign(LEFT, BOTTOM);
                 stanzaCanvas.textFont('Sometype Mono');
-                let textSize = 8;
-                stanzaCanvas.textSize(textSize);
+                stanzaCanvas.textSize(numberSize);
                 // Position number at 45 degree angle (top-right)
                 // 45 degrees = PI/4 radians, cos(45°) = sin(45°) ≈ 0.707
                 let angle = Math.PI / 4; // 45 degrees
@@ -1195,13 +1198,14 @@ function displayStanzas() {
 function regenerateAllPatterns() {
     let style = document.getElementById('modal-pattern-style').value;
     let display = document.getElementById('modal-pattern-display').value;
+    let numberSize = parseInt(document.getElementById('modal-number-size').value);
 
-    console.log('Regenerating patterns with style:', style, 'display:', display);
+    console.log('Regenerating patterns with style:', style, 'display:', display, 'numberSize:', numberSize);
 
     // Regenerate all pattern images
     for (let i = 0; i < stanzas.length; i++) {
         if (stanzas[i].pathData) {
-            stanzas[i].image = generatePatternImage(stanzas[i].pathData, style, display);
+            stanzas[i].image = generatePatternImage(stanzas[i].pathData, style, display, numberSize);
         }
     }
 
