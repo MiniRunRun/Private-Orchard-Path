@@ -15,6 +15,7 @@ let morseCodeLevel = 0; // 0-100, controls how much text is morse coded
 let clickSequence = 0; // Track the order of clicks
 let patternStyle = 'solid'; // 'solid' or 'hollow' - controls pattern circle style
 let patternDisplay = 'circles'; // 'circles' or 'numbers' - controls whether to show sequence numbers
+let patternNumberSize = 8; // Default number size in pixels
 
 // RiTa Markov for text generation
 let markov = null;
@@ -174,6 +175,7 @@ function setup() {
 
     // Number size slider
     document.getElementById('modal-number-size').addEventListener('input', function(e) {
+        patternNumberSize = parseInt(e.target.value);
         document.getElementById('number-size-value').textContent = e.target.value;
     });
 }
@@ -1078,7 +1080,7 @@ function saveStanza() {
     }
 
     // Generate pattern image with default style
-    let patternImage = generatePatternImage(currentPath, patternStyle, patternDisplay);
+    let patternImage = generatePatternImage(currentPath, patternStyle, patternDisplay, patternNumberSize);
 
     // Collect structured data for each sentence
     let sentencesData = [];
@@ -1305,6 +1307,10 @@ function finishPoem() {
 
     // Update patterns gallery
     updateModalPatternsGallery();
+
+    // Initialize modal controls with current values
+    document.getElementById('modal-number-size').value = patternNumberSize;
+    document.getElementById('number-size-value').textContent = patternNumberSize;
 
     // Show modal
     document.getElementById('export-modal').style.display = 'block';
