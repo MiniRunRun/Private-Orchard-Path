@@ -997,7 +997,7 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
                 stanzaCanvas.noStroke();
                 stanzaCanvas.textAlign(CENTER, CENTER);
                 stanzaCanvas.textFont('Sometype Mono');
-                let textSize = 24;
+                let textSize = 8;
                 stanzaCanvas.textSize(textSize);
                 stanzaCanvas.text(String(sequence).padStart(2, '0'), x, y);
             } else if (display === 'numbers-beside') {
@@ -1018,7 +1018,7 @@ function generatePatternImage(pathData, style = 'solid', display = 'circles') {
                 stanzaCanvas.noStroke();
                 stanzaCanvas.textAlign(LEFT, BOTTOM);
                 stanzaCanvas.textFont('Sometype Mono');
-                let textSize = 24;
+                let textSize = 8;
                 stanzaCanvas.textSize(textSize);
                 // Position number at 45 degree angle (top-right)
                 // 45 degrees = PI/4 radians, cos(45°) = sin(45°) ≈ 0.707
